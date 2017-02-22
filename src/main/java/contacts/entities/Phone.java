@@ -2,15 +2,11 @@ package contacts.entities;
 
 import java.io.Serializable;
 import java.util.Objects;
-import static javax.persistence.CascadeType.ALL;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import static javax.persistence.FetchType.EAGER;
 import javax.persistence.GeneratedValue;
 import static javax.persistence.GenerationType.AUTO;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -25,25 +21,20 @@ public class Phone implements Serializable, Comparable<Phone>
     @Column(name="TEXTVALUE", nullable=false, length=100)
     private String textValue;
     
-    @ManyToOne(fetch=EAGER, cascade=ALL)
-    @JoinColumn(name="CONTACT_ID", nullable=false)
-    private Contact contact;
-    
     public Phone()
     {
         this(null, null);
     }
     
-    public Phone(String value, Contact contact)
+    public Phone(String value)
     {
-        this(null, value, contact);
+        this(null, value);
     }
     
-    public Phone(Long id, String value, Contact contact)
+    public Phone(Long id, String value)
     {
         this.id = id;
         this.textValue = value;
-        this.contact = contact;
     }
 
     @Override
@@ -106,15 +97,5 @@ public class Phone implements Serializable, Comparable<Phone>
     public void setTextValue(String value)
     {
         this.textValue = value;
-    }
-
-    public Contact getContact()
-    {
-        return contact;
-    }
-
-    public void setContact(Contact contact)
-    {
-        this.contact = contact;
     }
 }

@@ -158,7 +158,10 @@ public class Main
         {
             try(DAO dao = new DAO())
             {
-                Phone p = dao.createPhone(text, c);
+                Phone p = dao.createPhone(text);
+                c.getPhoneNumbers().add(p);
+                dao.updateContact(c);
+                
                 success = true;
                 message("Added " + p);
                 contact.addPhoneField.setText(null);
@@ -183,7 +186,7 @@ public class Main
         }
     }
 
-    private void removePhoneAction()
+    private void removePhoneAction()//TODO: fix this
     {
         Contact c = panel.contactList.getSelectedValue();
         boolean success = false;
@@ -207,7 +210,7 @@ public class Main
                 {
                     c.getPhoneNumbers().remove(p);
                     dao.updateContact(c);
-                    dao.deletePhone(p);
+//                    dao.deletePhone(p);
                     
                     success = true;
                 }
@@ -245,9 +248,12 @@ public class Main
         {
             try(DAO dao = new DAO())
             {
-                EMail p = dao.createEMail(text, c);
+                EMail e = dao.createEMail(text);
+                c.getEmailAddresses().add(e);
+                dao.updateContact(c);
+                
                 success = true;
-                message("Added " + p);
+                message("Added " + e);
                 contact.addEmailField.setText(null);
             }
             catch(Exception ex)

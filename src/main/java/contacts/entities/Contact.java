@@ -4,17 +4,20 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+import static javax.persistence.CascadeType.REMOVE;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import static javax.persistence.FetchType.EAGER;
 import javax.persistence.GeneratedValue;
 import static javax.persistence.GenerationType.AUTO;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "CONTACT")
+@Table(name="CONTACT")
 public class Contact implements Serializable, Comparable<Contact>
 {
 
@@ -35,10 +38,16 @@ public class Contact implements Serializable, Comparable<Contact>
     @Column(name = "NOTES", length = 1000)
     private String notes;
     
-    @OneToMany(fetch=EAGER, mappedBy="contact")
+    @ManyToMany(fetch=EAGER, cascade=REMOVE)
+    @JoinTable(name="CONTACT_PHONE",
+            joinColumns={@JoinColumn(name="CONTACT_ID", referencedColumnName="ID")},
+            inverseJoinColumns={@JoinColumn(name="PHONE_ID", referencedColumnName="ID")})
     private Set<Phone> phoneNumbers = new TreeSet<>(); 
     
-    @OneToMany(fetch=EAGER, mappedBy="contact")
+    @ManyToMany(fetch=EAGER, cascade=REMOVE)
+    @JoinTable(name="CONTACT_EMAIL",
+            joinColumns={@JoinColumn(name="CONTACT_ID", referencedColumnName="ID")},
+            inverseJoinColumns={@JoinColumn(name="EMAIL_ID", referencedColumnName="ID")})
     private Set<EMail> emailAddresses = new TreeSet<>(); 
     
 

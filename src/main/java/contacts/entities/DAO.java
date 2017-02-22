@@ -17,18 +17,18 @@ public class DAO implements AutoCloseable
         t = s.beginTransaction();
     }
     
-    public Phone createPhone(String value, Contact contact)
+    public Phone createPhone(String value)
     {
-        Phone phone = new Phone(value, contact);
+        Phone phone = new Phone(value);
         Long id = (Long) s.save(phone);
         phone.setId(id);
         
         return phone;
     }
     
-    public EMail createEMail(String value, Contact contact)
+    public EMail createEMail(String value)
     {
-        EMail email = new EMail(value, contact);
+        EMail email = new EMail(value);
         Long id = (Long) s.save(email);
         email.setId(id);
         
