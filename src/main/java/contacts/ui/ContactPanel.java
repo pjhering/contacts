@@ -4,11 +4,13 @@ import contacts.entities.EMail;
 import contacts.entities.Phone;
 import java.awt.BorderLayout;
 import static java.awt.BorderLayout.CENTER;
+import static java.awt.BorderLayout.EAST;
 import static java.awt.BorderLayout.NORTH;
 import static java.awt.BorderLayout.SOUTH;
 import static java.awt.BorderLayout.WEST;
 import java.awt.GridLayout;
 import static javax.swing.BorderFactory.createTitledBorder;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -23,11 +25,17 @@ public class ContactPanel extends JPanel
     public final JComboBox<String> titleField;
     public final JTextArea notesField;
     public final JList<Phone> phoneList;
+    public final JTextField addPhoneField;
+    public final JButton addPhoneButton;
     public final JList<EMail> emailList;
+    public final JTextField addEmailField;
+    public final JButton addEmailButton;
     
     private final JLabel idLabel, titleLabel, firstNameLabel, lastNameLabel;
     private final JScrollPane notesScroll, phoneScroll, emailScroll;
     private final JPanel labelPanel, fieldPanel, northPanel, southPanel;
+    private final JPanel phoneListPanel, addPhonePanel;
+    private final JPanel emailListPanel, addEmailPanel;
     
     public ContactPanel()
     {
@@ -48,9 +56,7 @@ public class ContactPanel extends JPanel
         notesScroll = new JScrollPane(notesField);
         notesScroll.setBorder(createTitledBorder("notes"));
         phoneScroll = new JScrollPane(phoneList);
-        phoneScroll.setBorder(createTitledBorder("phone numbers"));
         emailScroll = new JScrollPane(emailList);
-        emailScroll.setBorder(createTitledBorder("email addresses"));
         
         labelPanel = new JPanel(new GridLayout(4, 1, 5, 5));
         labelPanel.add(idLabel);
@@ -68,9 +74,29 @@ public class ContactPanel extends JPanel
         northPanel.add(labelPanel, WEST);
         northPanel.add(fieldPanel, CENTER);
         
+        addPhoneField = new JTextField(15);
+        addPhoneButton = new JButton("+");
+        addPhonePanel = new JPanel(new BorderLayout(0, 0));
+        addPhonePanel.add(addPhoneField, CENTER);
+        addPhonePanel.add(addPhoneButton, EAST);
+        phoneListPanel = new JPanel(new BorderLayout(0, 0));
+        phoneListPanel.setBorder(createTitledBorder("phone numbers"));
+        phoneListPanel.add(phoneScroll, CENTER);
+        phoneListPanel.add(addPhonePanel, SOUTH);
+        
+        addEmailField = new JTextField(15);
+        addEmailButton = new JButton("+");
+        addEmailPanel = new JPanel(new BorderLayout(0, 0));
+        addEmailPanel.add(addEmailField, CENTER);
+        addEmailPanel.add(addEmailButton, EAST);
+        emailListPanel = new JPanel(new BorderLayout(0, 0));
+        emailListPanel.setBorder(createTitledBorder("email addresses"));
+        emailListPanel.add(emailScroll, CENTER);
+        emailListPanel.add(addEmailPanel, SOUTH);
+        
         southPanel = new JPanel(new GridLayout(1, 2, 5, 5));
-        southPanel.add(phoneScroll);
-        southPanel.add(emailScroll);
+        southPanel.add(phoneListPanel);
+        southPanel.add(emailListPanel);
         
         setup();
     }

@@ -23,8 +23,8 @@ public class AppPanel extends JPanel
     public final ContactPanel contactPanel;
     public final JList<Contact> contactList;
     public final JButton clearButton, saveButton, deleteButton;
-    public final JMenuItem addPhoneItem, removePhoneItem;
-    public final JMenuItem addEmailItem, removeEmailItem;
+    public final JMenuItem removePhoneItem;
+    public final JMenuItem removeEmailItem;
     
     private final JPopupMenu phoneMenu, emailMenu;
     private final JScrollPane contactScroll;
@@ -38,16 +38,12 @@ public class AppPanel extends JPanel
         clearButton = new JButton("clear");
         saveButton = new JButton("save");
         deleteButton = new JButton("delete");
-        addPhoneItem = new JMenuItem("add");
         removePhoneItem = new JMenuItem("remove");
-        addEmailItem = new JMenuItem("add");
         removeEmailItem = new JMenuItem("remove");
         phoneMenu = new JPopupMenu();
-        phoneMenu.add(addPhoneItem);
         phoneMenu.add(removePhoneItem);
         contactPanel.phoneList.addMouseListener(new PopupListener(phoneMenu));
         emailMenu = new JPopupMenu();
-        emailMenu.add(addEmailItem);
         emailMenu.add(removeEmailItem);
         contactPanel.emailList.addMouseListener(new PopupListener(emailMenu));
         contactScroll = new JScrollPane(contactList);

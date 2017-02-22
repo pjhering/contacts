@@ -14,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -38,16 +39,10 @@ public class Contact implements Serializable, Comparable<Contact>
     @Column(name = "NOTES", length = 1000)
     private String notes;
     
-    @ManyToMany(fetch=EAGER, cascade=ALL)
-    @JoinTable(name="PERSONPHONE",
-            joinColumns={@JoinColumn(name="PHONE_ID", referencedColumnName="ID")},
-            inverseJoinColumns={@JoinColumn(name="PERSON_ID", referencedColumnName="ID")})
+    @OneToMany(fetch=EAGER, mappedBy="contact")
     private Set<Phone> phoneNumbers = new TreeSet<>(); 
     
-    @ManyToMany(fetch=EAGER, cascade=ALL)
-    @JoinTable(name="PERSONEMAIL",
-            joinColumns={@JoinColumn(name="EMAIL_ID", referencedColumnName="ID")},
-            inverseJoinColumns={@JoinColumn(name="PERSON_ID", referencedColumnName="ID")})
+    @OneToMany(fetch=EAGER, mappedBy="contact")
     private Set<EMail> emailAddresses = new TreeSet<>(); 
     
 

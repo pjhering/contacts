@@ -2,11 +2,15 @@ package contacts.entities;
 
 import java.io.Serializable;
 import java.util.Objects;
+import static javax.persistence.CascadeType.ALL;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import static javax.persistence.FetchType.EAGER;
 import javax.persistence.GeneratedValue;
 import static javax.persistence.GenerationType.AUTO;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -18,29 +22,34 @@ public class EMail implements Serializable, Comparable<EMail>
     @Column(name="ID", nullable=false, unique=true)
     private Long id;
     
-    @Column(name="VALUE", nullable=false, length=100)
-    private String value;
+    @Column(name="TEXTVALUE", nullable=false, length=100)
+    private String textValue;
+    
+    @ManyToOne(fetch=EAGER, cascade=ALL)
+    @JoinColumn(name="CONTACT_ID", nullable=false)
+    private Contact contact;
     
     public EMail()
     {
-        this(null);
+        this(null, null);
     }
     
-    public EMail(String value)
+    public EMail(String value, Contact contact)
     {
-        this(null, value);
+        this(null, value, contact);
     }
     
-    public EMail(Long id, String value)
+    public EMail(Long id, String value, Contact contact)
     {
         this.id = id;
-        this.value = value;
+        this.textValue = value;
+        this.contact = contact;
     }
 
     @Override
     public String toString()
     {
-        return value;
+        return textValue;
     }
     
     @Override
@@ -76,7 +85,7 @@ public class EMail implements Serializable, Comparable<EMail>
     @Override
     public int compareTo(EMail o)
     {
-        return value.compareTo(o.value);
+        return textValue.compareTo(o.textValue);
     }
 
     public Long getId()
@@ -89,13 +98,23 @@ public class EMail implements Serializable, Comparable<EMail>
         this.id = id;
     }
 
-    public String getValue()
+    public String getTextValue()
     {
-        return value;
+        return textValue;
     }
 
-    public void setValue(String value)
+    public void setTextValue(String value)
     {
-        this.value = value;
+        this.textValue = value;
+    }
+
+    public Contact getContact()
+    {
+        return contact;
+    }
+
+    public void setContact(Contact contact)
+    {
+        this.contact = contact;
     }
 }
