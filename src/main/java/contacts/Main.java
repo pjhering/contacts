@@ -2,13 +2,17 @@ package contacts;
 
 import contacts.entities.Contact;
 import contacts.entities.DAO;
+import contacts.entities.EMail;
 import contacts.entities.Hibernate;
+import contacts.entities.Phone;
 import contacts.ui.AppPanel;
 import contacts.ui.ContactPanel;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import static javax.swing.BorderFactory.createEmptyBorder;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
@@ -24,17 +28,22 @@ public class Main
 
     private final JFrame frame;
     private final AppPanel panel;
+    private final ContactPanel contact;
+
+    private final Pattern validPhone = Pattern.compile("^[0-9]{3}-[0-9]{3}-[0-9]{4}$");
+    private final Pattern validEmail = Pattern.compile("^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
 
     private Main()
     {
         panel = new AppPanel();
+        contact = panel.contactPanel;
         panel.setBorder(createEmptyBorder(5, 5, 5, 5));
-        panel.contactPanel.addPhoneButton.addActionListener(a1 -> addPhoneAction());
-        panel.contactPanel.addEmailButton.addActionListener(a2 -> addEmailAction());
+        contact.addPhoneButton.addActionListener(a1 -> addPhoneAction());
+        contact.addEmailButton.addActionListener(a2 -> addEmailAction());
         panel.clearButton.addActionListener(a3 -> clearAction());
         panel.contactList.addListSelectionListener(a4 -> contactListChanged());
         panel.deleteButton.addActionListener(a5 -> deleteAction());
-        panel.removeEmailItem.addActionListener(a6 -> removeEmailAcion());
+        panel.removeEmailItem.addActionListener(a6 -> removeEmailAction());
         panel.removePhoneItem.addActionListener(a7 -> removePhoneAction());
         panel.saveButton.addActionListener(a8 -> saveAction());
 
@@ -79,14 +88,6 @@ public class Main
         System.exit(0);
     }
 
-    private void addEmailAction()
-    {
-    }
-
-    private void addPhoneAction()
-    {
-    }
-
     private void clearAction()
     {
         refreshContactsList();
@@ -100,14 +101,13 @@ public class Main
         
         if(c != null)
         {
-            ContactPanel p = panel.contactPanel;
-            p.idField.setText(c.getId().toString());
-            p.titleField.setSelectedItem(c.getTitle());
-            p.firstNameField.setText(c.getFirstName());
-            p.lastNameField.setText(c.getLastName());
-            p.notesField.setText(c.getNotes());
-            p.phoneList.setModel(createListModel(c.getPhoneNumbers()));
-            p.emailList.setModel(createListModel(c.getEmailAddresses()));
+            contact.idField.setText(c.getId().toString());
+            contact.titleField.setSelectedItem(c.getTitle());
+            contact.firstNameField.setText(c.getFirstName());
+            contact.lastNameField.setText(c.getLastName());
+            contact.notesField.setText(c.getNotes());
+            contact.phoneList.setModel(createListModel(c.getPhoneNumbers()));
+            contact.emailList.setModel(createListModel(c.getEmailAddresses()));
             
             setButtonsToUpdate();
         }
@@ -140,18 +140,144 @@ public class Main
         }
     }
 
-    private void removeEmailAcion()
+    private void addPhoneAction()
     {
+        Contact c = panel.contactList.getSelectedValue();
+        boolean success = false;
+        
+        if(c == null)
+        {
+            message("A contact must be selected");
+            return;
+        }
+        
+        String text = contact.addPhoneField.getText();
+        Matcher m = validPhone.matcher(text);
+        
+        if(m.matches())
+        {
+            try(DAO dao = new DAO())
+            {
+                Phone p = dao.createPhone(text, c);
+                success = true;
+                message("Added " + p);
+                contact.addPhoneField.setText(null);
+            }
+            catch(Exception ex)
+            {
+                error(ex);
+            }
+        }
+        else
+        {
+            message("Invalid phone number format");
+            contact.addPhoneField.requestFocus();
+        }
+        
+        if(success)
+        {
+            refreshContactsList();
+            clearAllFields();
+            setButtonsToInsert();
+            panel.contactList.setSelectedValue(c, true);
+        }
     }
 
     private void removePhoneAction()
+    {
+        Contact c = panel.contactList.getSelectedValue();
+        boolean success = false;
+        
+        if(c == null)
+        {
+            message("A contact must be selected");
+            return;
+        }
+        else
+        {
+            Phone p = contact.phoneList.getSelectedValue();
+            
+            if(p == null)
+            {
+                message("A phone number must be selected");
+            }
+            else
+            {
+                try(DAO dao = new DAO())
+                {
+                    c.getPhoneNumbers().remove(p);
+                    dao.updateContact(c);
+                    dao.deletePhone(p);
+                    
+                    success = true;
+                }
+                catch(Exception ex)
+                {
+                    error(ex);
+                }
+            }
+        }
+        
+        if(success)
+        {
+            refreshContactsList();
+            clearAllFields();
+            setButtonsToInsert();
+            panel.contactList.setSelectedValue(c, true);
+        }
+    }
+
+    private void addEmailAction()
+    {
+        Contact c = panel.contactList.getSelectedValue();
+        boolean success = false;
+        
+        if(c == null)
+        {
+            message("A contact must be selected");
+            return;
+        }
+        
+        String text = contact.addEmailField.getText();
+        Matcher m = validEmail.matcher(text);
+        
+        if(m.matches())
+        {
+            try(DAO dao = new DAO())
+            {
+                EMail p = dao.createEMail(text, c);
+                success = true;
+                message("Added " + p);
+                contact.addEmailField.setText(null);
+            }
+            catch(Exception ex)
+            {
+                error(ex);
+            }
+        }
+        else
+        {
+            message("Invalid email address format");
+            contact.addPhoneField.requestFocus();
+        }
+        
+        if(success)
+        {
+            refreshContactsList();
+            clearAllFields();
+            setButtonsToInsert();
+            panel.contactList.setSelectedValue(c, true);
+        }
+    }
+
+    private void removeEmailAction()
     {
     }
 
     private void saveAction()
     {
         boolean success = false;
-        String id = panel.contactPanel.idField.getText();
+        String id = contact.idField.getText();
         
         try (DAO dao = new DAO())
         {
@@ -160,10 +286,10 @@ public class Main
                 if(validate())
                 {
                     Contact c = dao.createContact(
-                            (String) panel.contactPanel.titleField.getSelectedItem(),
-                            panel.contactPanel.firstNameField.getText(),
-                            panel.contactPanel.lastNameField.getText(),
-                            panel.contactPanel.notesField.getText());
+                            (String) contact.titleField.getSelectedItem(),
+                            contact.firstNameField.getText(),
+                            contact.lastNameField.getText(),
+                            contact.notesField.getText());
                     message("Created " + c);
                     success = true;
                 }
@@ -174,10 +300,10 @@ public class Main
                 
                 if(c != null && validate())
                 {
-                    c.setTitle((String) panel.contactPanel.titleField.getSelectedItem());
-                    c.setFirstName(panel.contactPanel.firstNameField.getText());
-                    c.setLastName(panel.contactPanel.lastNameField.getText());
-                    c.setNotes(panel.contactPanel.notesField.getText());
+                    c.setTitle((String) contact.titleField.getSelectedItem());
+                    c.setFirstName(contact.firstNameField.getText());
+                    c.setLastName(contact.lastNameField.getText());
+                    c.setNotes(contact.notesField.getText());
                     
                     dao.updateContact(c);
                     message("Updated " + c);
@@ -200,25 +326,25 @@ public class Main
     
     private boolean validate()
     {
-        String fname = panel.contactPanel.firstNameField.getText();
+        String fname = contact.firstNameField.getText();
         if(fname != null && fname.length() > 100)
         {
             message("First name must be less than 100 characters");
-            panel.contactPanel.firstNameField.requestFocus();
+            contact.firstNameField.requestFocus();
             return false;
         }
         
-        String lname = panel.contactPanel.lastNameField.getText();
+        String lname = contact.lastNameField.getText();
         if(lname == null || lname.trim().length() == 0)
         {
             message("Last name is required");
-            panel.contactPanel.lastNameField.requestFocus();
+            contact.lastNameField.requestFocus();
             return false;
         }
         else if(lname.length() > 100)
         {
             message("Last name must be less than 100 characters");
-            panel.contactPanel.lastNameField.requestFocus();
+            contact.lastNameField.requestFocus();
             return false;
         }
         
@@ -241,7 +367,6 @@ public class Main
 
     private void clearAllFields()
     {
-        ContactPanel contact = panel.contactPanel;
         contact.emailList.setModel(new DefaultListModel<>());
         contact.firstNameField.setText(null);
         contact.idField.setText(null);
@@ -253,10 +378,10 @@ public class Main
 
     private void setButtonsToInsert()
     {
-        panel.contactPanel.addPhoneButton.setEnabled(false);
-        panel.contactPanel.addPhoneField.setEditable(false);
-        panel.contactPanel.addEmailButton.setEnabled(false);
-        panel.contactPanel.addEmailField.setEditable(false);
+        contact.addPhoneButton.setEnabled(false);
+        contact.addPhoneField.setEditable(false);
+        contact.addEmailButton.setEnabled(false);
+        contact.addEmailField.setEditable(false);
         panel.removeEmailItem.setEnabled(false);
         panel.removePhoneItem.setEnabled(false);
         panel.clearButton.setEnabled(true);
@@ -267,10 +392,10 @@ public class Main
 
     private void setButtonsToUpdate()
     {
-        panel.contactPanel.addPhoneButton.setEnabled(true);
-        panel.contactPanel.addPhoneField.setEditable(true);
-        panel.contactPanel.addEmailButton.setEnabled(true);
-        panel.contactPanel.addEmailField.setEditable(true);
+        contact.addPhoneButton.setEnabled(true);
+        contact.addPhoneField.setEditable(true);
+        contact.addEmailButton.setEnabled(true);
+        contact.addEmailField.setEditable(true);
         panel.removeEmailItem.setEnabled(true);
         panel.removePhoneItem.setEnabled(true);
         panel.clearButton.setEnabled(true);
